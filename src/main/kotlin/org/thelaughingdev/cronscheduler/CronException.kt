@@ -1,4 +1,4 @@
-package org.thelaugingdev.cronscheduler
+package org.thelaughingdev.cronscheduler
 
 sealed class CronException(msg: String, cause: Throwable? = null) : RuntimeException(msg, cause)
 

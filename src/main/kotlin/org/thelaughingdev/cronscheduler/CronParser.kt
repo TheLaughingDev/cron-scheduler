@@ -1,7 +1,7 @@
-package org.thelaugingdev.cronscheduler
+package org.thelaughingdev.cronscheduler
 
 import org.thelaugingdev.cronscheduler.ParserSymbol.*
-import org.thelaugingdev.cronscheduler.CronSection.*
+import org.thelaughingdev.cronscheduler.CronSection.*
 
 interface CronParser {
 	fun parseSchedule(strSchedule: String): CronSchedule
@@ -80,7 +80,7 @@ class BasicParser(private val parserDataFactory: ParserData.Factory) : CronParse
 
 	override fun parseSchedule(strSchedule: String): CronSchedule {
 
-		val data = parserDataFactory.create(strSchedule)
+		val data = ParserData.create(strSchedule)
 
 		if(data.symbol == AT)
 			return parseSpecialAttributes(data.next())

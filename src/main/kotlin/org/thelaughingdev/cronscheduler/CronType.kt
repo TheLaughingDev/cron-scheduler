@@ -1,6 +1,6 @@
-package org.thelaugingdev.cronscheduler
+package org.thelaughingdev.cronscheduler
 
-import org.thelaugingdev.cronscheduler.CronSection.*
+import org.thelaughingdev.cronscheduler.CronSection.*
 
 sealed class CronType() : Iterable<Int> {
 

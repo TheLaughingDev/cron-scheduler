@@ -1,4 +1,4 @@
-package org.thelaugingdev.cronscheduler
+package org.thelaughingdev.cronscheduler
 
 import java.time.ZonedDateTime
 import java.util.*
