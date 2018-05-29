@@ -13,11 +13,11 @@ class BasicParser(private val parserDataFactory: ParserData.Factory) : CronParse
 		val specialAttribute = data.readLower()
 
 		return when(specialAttribute) {
-			"yearly", "annually" -> CronSchedule(SingleCron(SECOND, 0), SingleCron(MINUTE, 0), SingleCron(HOUR, 0), SingleCron(DAY_OF_MONTH, 1), SingleCron(MONTH, 1))
-			"monthly" -> CronSchedule(SingleCron(SECOND, 0), SingleCron(MINUTE, 0), SingleCron(HOUR, 0), SingleCron(DAY_OF_MONTH, 1))
-			"weekly" -> CronSchedule(second = SingleCron(SECOND, 0), minute = SingleCron(MINUTE, 0), hour = SingleCron(HOUR, 0), dayOfWeek = SingleCron(DAY_OF_WEEK, 0))
-			"daily" -> CronSchedule(SingleCron(SECOND, 0), SingleCron(MINUTE, 0), SingleCron(HOUR, 0))
-			"hourly" -> CronSchedule(SingleCron(SECOND, 0), SingleCron(MINUTE, 0))
+			"yearly", "annually" -> CronSchedule.YEARLY
+			"monthly" -> CronSchedule.MONTHLY
+			"weekly" -> CronSchedule.WEEKLY
+			"daily" -> CronSchedule.DAILY
+			"hourly" -> CronSchedule.HOURLY
 			else -> throw CronParseException("@$specialAttribute is not a valid expression.")
 		}
 	}
