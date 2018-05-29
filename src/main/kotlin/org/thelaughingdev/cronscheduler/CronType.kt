@@ -4,10 +4,6 @@ import org.thelaughingdev.cronscheduler.CronSection.*
 
 sealed class CronType() : Iterable<Int> {
 
-	init {
-		validate()
-	}
-
 	protected abstract fun validate()
 
 	abstract val section: CronSection
@@ -16,6 +12,11 @@ sealed class CronType() : Iterable<Int> {
 sealed class ContinuousRangeCron() : CronType()
 
 data class RangeCron(val start: SingleCron, val end: SingleCron) : ContinuousRangeCron() {
+
+	init {
+		validate()
+	}
+
 	override val section = start.section
 
 	override fun iterator() = (start.value..end.value).iterator()
@@ -23,10 +24,18 @@ data class RangeCron(val start: SingleCron, val end: SingleCron) : ContinuousRan
 	override fun validate() {
 		if(start.section != end.section)
 			throw CronValidationException("start and end must be in the same section.")
+
+		if(end.value < start.value)
+			throw CronValidationException("start must come before end.")
 	}
 }
 
 data class StepCron(val base: ContinuousRangeCron, val step: Int) : ContinuousRangeCron() {
+
+	init {
+		validate()
+	}
+
 	override val section = base.section
 
 	override fun iterator() = when(base) {
@@ -41,6 +50,11 @@ data class StepCron(val base: ContinuousRangeCron, val step: Int) : ContinuousRa
 }
 
 data class SingleCron(override val section: CronSection, val value :Int) : ContinuousRangeCron() {
+
+	init {
+		validate()
+	}
+
 	override fun iterator() = arrayOf(value).iterator()
 
 	override fun validate() {
@@ -50,12 +64,22 @@ data class SingleCron(override val section: CronSection, val value :Int) : Conti
 }
 
 data class AllCron(override val section: CronSection) : ContinuousRangeCron() {
+
+	init {
+		validate()
+	}
+
 	override fun iterator() = section.range.iterator()
 
 	override fun validate() = Unit
 }
 
 data class ListCron(override val section: CronSection, val list: List<ContinuousRangeCron>) : CronType() {
+
+	init {
+		validate()
+	}
+
 	override fun iterator() = list.flatMap { it }.distinct().sorted().iterator()
 
 	override fun validate() {

@@ -1,6 +1,6 @@
 package org.thelaughingdev.cronscheduler
 
-import org.thelaugingdev.cronscheduler.ParserSymbol.*
+import org.thelaughingdev.cronscheduler.ParserSymbol.*
 import org.thelaughingdev.cronscheduler.CronSection.*
 
 interface CronParser {
