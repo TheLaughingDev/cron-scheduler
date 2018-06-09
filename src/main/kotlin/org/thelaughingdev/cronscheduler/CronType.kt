@@ -1,7 +1,5 @@
 package org.thelaughingdev.cronscheduler
 
-import org.thelaughingdev.cronscheduler.CronSection.*
-
 sealed class CronType() : Iterable<Int> {
 
 	protected abstract fun validate()
@@ -90,23 +88,4 @@ data class ListCron(override val section: CronSection, val list: List<Continuous
 			if(type.section != section)
 				throw CronValidationException("All items in ${ListCron::class.java} must have the same section.")
 	}
-}
-
-data class CronSchedule(
-	val second: CronType = AllCron(SECOND),
-	val minute: CronType = AllCron(MINUTE),
-	val hour: CronType = AllCron(HOUR),
-	val dayOfMonth: CronType = AllCron(DAY_OF_MONTH),
-	val month: CronType = AllCron(MONTH),
-	val year: CronType = AllCron(YEAR),
-	val dayOfWeek: CronType = AllCron(DAY_OF_WEEK)) {
-
-	companion object {
-		val YEARLY = CronSchedule(SingleCron(SECOND, 0), SingleCron(MINUTE, 0), SingleCron(HOUR, 0), SingleCron(DAY_OF_MONTH, 1), SingleCron(MONTH, 1))
-		val MONTHLY = CronSchedule(SingleCron(SECOND, 0), SingleCron(MINUTE, 0), SingleCron(HOUR, 0), SingleCron(DAY_OF_MONTH, 1))
-		val WEEKLY = CronSchedule(second = SingleCron(SECOND, 0), minute = SingleCron(MINUTE, 0), hour = SingleCron(HOUR, 0), dayOfWeek = SingleCron(DAY_OF_WEEK, 0))
-		val DAILY = CronSchedule(SingleCron(SECOND, 0), SingleCron(MINUTE, 0), SingleCron(HOUR, 0))
-		val HOURLY = CronSchedule(SingleCron(SECOND, 0), SingleCron(MINUTE, 0))
-	}
-
 }

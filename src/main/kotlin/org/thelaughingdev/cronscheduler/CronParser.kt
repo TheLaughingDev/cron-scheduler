@@ -1,56 +1,65 @@
 package org.thelaughingdev.cronscheduler
 
-import org.thelaughingdev.cronscheduler.ParserSymbol.*
+import org.thelaughingdev.cronscheduler.ParserData.ParserSymbol.*
 import org.thelaughingdev.cronscheduler.CronSection.*
 
 interface CronParser {
 	fun parseSchedule(strSchedule: String): CronSchedule
 }
 
-class BasicParser(private val parserDataFactory: ParserData.Factory) : CronParser {
+class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSchedule.Helper) : CronParser {
+
+	private fun readConstant(data: ParserData, section: CronSection): Int = when(data.symbol) {
+		DIGIT -> data.readDigits()
+		UPPER_CHAR -> {
+			val constantValue = data.readUpper()
+			section.textValues[constantValue] ?: throw CronParseException("Unknown constant $constantValue for section $section", data)
+		}
+		else -> throw CronParseException("Unexpected symbol", data)
+	}
 
 	private fun parseSpecialAttributes(data: ParserData): CronSchedule {
 		val specialAttribute = data.readLower()
 
 		return when(specialAttribute) {
-			"yearly", "annually" -> CronSchedule.YEARLY
-			"monthly" -> CronSchedule.MONTHLY
-			"weekly" -> CronSchedule.WEEKLY
-			"daily" -> CronSchedule.DAILY
-			"hourly" -> CronSchedule.HOURLY
-			else -> throw CronParseException("@$specialAttribute is not a valid expression.")
+			"yearly", "annually" -> cronSchedulerHelper.YEARLY
+			"monthly" -> cronSchedulerHelper.MONTHLY
+			"weekly" -> cronSchedulerHelper.WEEKLY
+			"daily" -> cronSchedulerHelper.DAILY
+			"hourly" -> cronSchedulerHelper.HOURLY
+			"reboot" -> cronSchedulerHelper.now()
+			"now" -> cronSchedulerHelper.now()
+			else -> throw CronParseException("@$specialAttribute is not a valid expression", data)
 		}
 	}
 
-	private fun parseStep(data: ParserData, type: ContinuousRangeCron) = if(data.next().symbol == DIGIT) {
-		val i = data.readDigits()
-		StepCron(type, i)
+	private fun parseStep(data: ParserData, type: ContinuousRangeCron) = if(data.symbol == DIGIT) {
+		StepCron(type, data.readDigits())
 	}
 	else
-		throw CronParseException("Exception while parsing step.")
+		throw CronParseException("Step value must be integer. Unexpected symbol ${data.symbol}", data)
 
-	private fun parseRange(data: ParserData, start: SingleCron) = if(data.next().symbol == DIGIT) {
-		val i = data.readDigits()
-		RangeCron(start, SingleCron(start.section, i))
+	private fun parseRange(data: ParserData, start: SingleCron) = when(data.symbol) {
+		DIGIT, UPPER_CHAR -> RangeCron(start, SingleCron(start.section, readConstant(data, start.section)))
+		else -> throw CronParseException("Unexpected symbol ${data.symbol}", data)
 	}
-	else
-		throw CronParseException("Exception while parsing range.")
 
 	private fun parseContinuousRangeCron(section: CronSection, data: ParserData): ContinuousRangeCron = when(data.symbol) {
 		ASTERISK -> {
 			val allCron = AllCron(section)
 			when(data.next().symbol) {
+				WHITE_SPACE, NONE -> allCron
 				SLASH -> parseStep(data.next(), allCron)
-				else -> throw CronParseException("")
+				else -> throw CronParseException("Unexpected symbol ${data.symbol}", data)
 			}
 		}
 		DIGIT -> {
-			val singleCron = SingleCron(section, data.readDigits())
+			val singleCron = SingleCron(section, readConstant(data, section))
 			when(data.symbol) {
 				HYPHEN -> {
 					val range = parseRange(data.next(), singleCron)
 					if(data.symbol == SLASH)
-						parseStep(data, range)
+						parseStep(data.next(), range)
 					else
 						range
 				}
@@ -58,7 +67,7 @@ class BasicParser(private val parserDataFactory: ParserData.Factory) : CronParse
 				else -> singleCron
 			}
 		}
-		else -> throw CronParseException("")
+		else -> throw CronParseException("Unexpected symbol ${data.symbol}", data)
 	}
 
 	private fun parseSection(section: CronSection, data: ParserData): CronType {
@@ -66,16 +75,16 @@ class BasicParser(private val parserDataFactory: ParserData.Factory) : CronParse
 
 		val cronType = parseContinuousRangeCron(section, data)
 
-		if(data.symbol == COMMA) {
-			val list = mutableListOf(cronType)
+		return if(data.symbol == COMMA)	ListCron(section, parseList(listOf(cronType), section, data.next())) else cronType
+	}
 
-			while(data.symbol == COMMA)
-				list.add(parseContinuousRangeCron(section, data))
+	private fun parseList(list: List<ContinuousRangeCron>, section: CronSection, data: ParserData): List<ContinuousRangeCron> {
+		val cronType = parseContinuousRangeCron(section, data)
 
-			return ListCron(section, list)
-		}
-
-		return cronType
+		return if(data.symbol == COMMA)
+			parseList(list.plusElement(cronType), section, data.next())
+		else
+			list.plusElement(cronType)
 	}
 
 	override fun parseSchedule(strSchedule: String): CronSchedule {
@@ -86,30 +95,31 @@ class BasicParser(private val parserDataFactory: ParserData.Factory) : CronParse
 			return parseSpecialAttributes(data.next())
 
 		val schedule = CronSchedule(parseSection(SECOND, data), parseSection(MINUTE, data.next()), parseSection(HOUR, data.next()),
-			parseSection(DAY_OF_MONTH, data.next()), parseSection(MONTH, data.next()), parseSection(DAY_OF_WEEK, data.next()))
+			parseSection(DAY_OF_MONTH, data.next()), parseSection(MONTH, data.next()), parseSection(YEAR, data.next()), parseSection(DAY_OF_WEEK, data.next()))
 
 		if(data.symbol != NONE)
-			throw CronParseException("Extra data after parsing schedule.")
+			throw CronParseException("Extra data after parsing schedule", data)
 
 		return schedule
 	}
 
 }
 
-enum class ParserSymbol(val str: String) {
-	HYPHEN("*"), COMMA(","), ASTERISK("*"), SLASH("/"), DIGIT("0123456789"), AT("@"), LOWER_CHAR("abcdefghijklmnopqrstuvwxyz"),
-	UPPER_CHAR("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),	WHITE_SPACE(" \t"), NONE("")
-}
-
 class ParserData(private val schedule: String) {
+
+	enum class ParserSymbol(val str: String) {
+		HYPHEN("-"), COMMA(","), ASTERISK("*"), SLASH("/"), DIGIT("0123456789"), AT("@"), LOWER_CHAR("abcdefghijklmnopqrstuvwxyz"),
+		UPPER_CHAR("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),	WHITE_SPACE(" \t"), NONE("")
+	}
 
 	companion object Factory {
 		fun create(schedule: String) = ParserData(schedule)
 	}
 
-	private var position = 0
+	var position = 0
+	private set
 
-	val symbol get() = ParserSymbol.values().find { character in it.str }
+	val symbol get() = if(character.isEmpty()) NONE else ParserSymbol.values().find { character in it.str }
 
 	val character get() = if(position >= schedule.length) "" else schedule[position].toString()
 
