@@ -53,7 +53,7 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 				else -> throw CronParseException("Unexpected symbol ${data.symbol}", data)
 			}
 		}
-		DIGIT -> {
+		DIGIT, UPPER_CHAR -> {
 			val singleCron = SingleCron(section, readConstant(data, section))
 			when(data.symbol) {
 				HYPHEN -> {
