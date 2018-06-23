@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 
 import org.thelaughingdev.cronscheduler.CronSection.*
 
@@ -69,13 +70,13 @@ class CronTypeTest {
 		@Test
 		fun `not valid with value before section`() {
 			val i = -1
-			assertThatThrownBy { SingleCron(SECOND, i) }.isInstanceOf(CronValidationException::class.java)
+			assertThrows<CronValidationException> { SingleCron(SECOND, i) }
 		}
 
 		@Test
 		fun `not valid with value after section`() {
 			val i = 60
-			assertThatThrownBy { SingleCron(SECOND, i) }.isInstanceOf(CronValidationException::class.java)
+			assertThrows<CronValidationException> { SingleCron(SECOND, i) }
 		}
 	}
 
@@ -92,14 +93,14 @@ class CronTypeTest {
 
 		@Test
 		fun `not valid with different sections`() {
-			assertThatThrownBy { RangeCron(SingleCron(SECOND, 0), SingleCron(MINUTE, 0)) }.isInstanceOf(CronValidationException::class.java)
+			assertThrows<CronValidationException> { RangeCron(SingleCron(SECOND, 0), SingleCron(MINUTE, 0)) }
 		}
 
 		@Test
 		fun `not valid with start before end`() {
 			val i = 5
 			val j = 10
-			assertThatThrownBy { RangeCron(SingleCron(SECOND, j), SingleCron(SECOND, i)) }.isInstanceOf(CronValidationException::class.java)
+			assertThrows<CronValidationException> { RangeCron(SingleCron(SECOND, j), SingleCron(SECOND, i)) }
 		}
 	}
 
@@ -156,7 +157,7 @@ class CronTypeTest {
 
 		@Test
 		fun `not valid with base of StepCron`() {
-			assertThatThrownBy { StepCron(StepCron(AllCron(SECOND), 3), 1) }.isInstanceOf(CronValidationException::class.java)
+			assertThrows<CronValidationException> { StepCron(StepCron(AllCron(SECOND), 3), 1) }
 		}
 	}
 
@@ -202,7 +203,7 @@ class CronTypeTest {
 
 		@Test
 		fun `not valid with different sections`() {
-			assertThatThrownBy { ListCron(SECOND, listOf(SingleCron(SECOND, 5), SingleCron(MINUTE, 5))) }.isInstanceOf(CronValidationException::class.java)
+			assertThrows<CronValidationException> { ListCron(SECOND, listOf(SingleCron(SECOND, 5), SingleCron(MINUTE, 5))) }
 		}
 	}
 

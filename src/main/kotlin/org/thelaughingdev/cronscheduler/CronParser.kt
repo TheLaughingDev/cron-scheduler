@@ -33,11 +33,10 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 		}
 	}
 
-	private fun parseStep(data: ParserData, type: ContinuousRangeCron) = if(data.symbol == DIGIT) {
-		StepCron(type, data.readDigits())
+	private fun parseStep(data: ParserData, type: ContinuousRangeCron) = when(data.symbol) {
+		DIGIT -> StepCron(type, data.readDigits())
+		else ->  throw CronParseException("Step value must be integer. Unexpected symbol ${data.symbol}", data)
 	}
-	else
-		throw CronParseException("Step value must be integer. Unexpected symbol ${data.symbol}", data)
 
 	private fun parseRange(data: ParserData, start: SingleCron) = when(data.symbol) {
 		DIGIT, UPPER_CHAR -> RangeCron(start, SingleCron(start.section, readConstant(data, start.section)))
@@ -89,7 +88,7 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 
 	override fun parseSchedule(strSchedule: String): CronSchedule {
 
-		val data = ParserData.create(strSchedule)
+		val data = ParserData.create(strSchedule.trim())
 
 		if(data.symbol == AT)
 			return parseSpecialAttributes(data.next())
@@ -102,7 +101,6 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 
 		return schedule
 	}
-
 }
 
 class ParserData(private val schedule: String) {

@@ -1,18 +1,9 @@
 package org.thelaughingdev.cronscheduler
 
-import io.mockk.*
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
-import io.mockk.objectMockk
-import org.assertj.core.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.extension.ExtendWith
-
+import io.mockk.mockk
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.*
 import org.thelaughingdev.cronscheduler.CronSection.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -451,6 +442,46 @@ class CronParserTest {
 				StepCron(RangeCron(SingleCron(DAY_OF_WEEK, 1), SingleCron(DAY_OF_WEEK, 6)), 5))))
 			assertThat(cronParser.parseSchedule("* * * * * * MON,MON-SAT,*/5,TUE/5,MON-SAT/5")).isEqualTo(defaultSchedule)
 		}
+	}
+
+	@Nested
+	inner class `Given parser errors` {
+
+		@Test
+		fun `with bad @ symbol`() {
+			assertThrows<CronParseException> { cronParser.parseSchedule("@bad") }
+		}
+
+		@Test
+		fun `with invalid character`() {
+			assertThrows<CronParseException> { cronParser.parseSchedule("* * * blah * * *") }
+		}
+
+		@Test
+		fun `with too many sections`() {
+			assertThrows<CronParseException> { cronParser.parseSchedule("* * * * * * * *") }
+		}
+
+		@Test
+		fun `with not enough sections`() {
+			assertThrows<CronParseException> { cronParser.parseSchedule("* * * * * *") }
+		}
+
+		@Test
+		fun `with invalid all cron`() {
+			assertThrows<CronParseException> { cronParser.parseSchedule("*12 * * * * * *") }
+		}
+
+		@Test
+		fun `with invalid range cron`() {
+			assertThrows<CronParseException> { cronParser.parseSchedule("1-* * * * * * *") }
+		}
+
+		@Test
+		fun `with invalid step cron`() {
+			assertThrows<CronParseException> { cronParser.parseSchedule("*/* * * * * * *") }
+		}
+
 	}
 
 }
