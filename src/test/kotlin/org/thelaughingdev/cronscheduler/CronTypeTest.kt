@@ -45,12 +45,6 @@ class CronTypeTest {
 		}
 
 		@Test
-		fun `with year`() {
-			val cron = AllCron(YEAR)
-			assertThat(cron).containsAll(YEAR.range)
-		}
-
-		@Test
 		fun `with day of week`() {
 			val cron = AllCron(DAY_OF_WEEK)
 			assertThat(cron).containsAll(DAY_OF_WEEK.range)

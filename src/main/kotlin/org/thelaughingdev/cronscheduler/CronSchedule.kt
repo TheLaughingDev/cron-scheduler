@@ -12,7 +12,7 @@ interface CronScheduleHelper {
 	fun now(): CronSchedule {
 		val now = LocalDateTime.now()
 		return CronSchedule(SingleCron(CronSection.SECOND, now.second), SingleCron(CronSection.MINUTE, now.minute), SingleCron(CronSection.HOUR, now.hour),
-			SingleCron(CronSection.DAY_OF_MONTH, now.dayOfMonth),	SingleCron(CronSection.MONTH, now.monthValue), SingleCron(CronSection.YEAR, now.year))
+			SingleCron(CronSection.DAY_OF_MONTH, now.dayOfMonth),	SingleCron(CronSection.MONTH, now.monthValue))
 	}
 }
 
@@ -22,7 +22,6 @@ data class CronSchedule(
 	val hour: CronType = AllCron(CronSection.HOUR),
 	val dayOfMonth: CronType = AllCron(CronSection.DAY_OF_MONTH),
 	val month: CronType = AllCron(CronSection.MONTH),
-	val year: CronType = AllCron(CronSection.YEAR),
 	val dayOfWeek: CronType = AllCron(CronSection.DAY_OF_WEEK)) {
 
 	companion object Helper : CronScheduleHelper

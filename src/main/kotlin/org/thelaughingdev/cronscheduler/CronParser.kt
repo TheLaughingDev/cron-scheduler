@@ -94,7 +94,7 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 			return parseSpecialAttributes(data.next())
 
 		val schedule = CronSchedule(parseSection(SECOND, data), parseSection(MINUTE, data.next()), parseSection(HOUR, data.next()),
-			parseSection(DAY_OF_MONTH, data.next()), parseSection(MONTH, data.next()), parseSection(YEAR, data.next()), parseSection(DAY_OF_WEEK, data.next()))
+			parseSection(DAY_OF_MONTH, data.next()), parseSection(MONTH, data.next()), parseSection(DAY_OF_WEEK, data.next()))
 
 		if(data.symbol != NONE)
 			throw CronParseException("Extra data after parsing schedule", data)

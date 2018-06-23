@@ -32,7 +32,6 @@ class BasicScheduler : CronScheduler {
 			HOUR -> this.plusHours(1)
 			DAY_OF_MONTH -> this.plusDays(1)
 			MONTH -> this.plusMonths(1)
-			YEAR -> this.plusYears(1)
 			DAY_OF_WEEK -> TODO("Implement this")
 		}
 	}
@@ -54,7 +53,7 @@ class BasicScheduler : CronScheduler {
 		var nextTime = start
 		var found = false
 
-		val schedulesList = listOf(schedule.second, schedule.minute, schedule.hour, schedule.dayOfMonth, schedule.month, schedule.year, schedule.dayOfWeek)
+		val schedulesList = listOf(schedule.second, schedule.minute, schedule.hour, schedule.dayOfMonth, schedule.month, schedule.dayOfWeek)
 
 		while(!found) {
 			for(i in schedulesList.indices) {
