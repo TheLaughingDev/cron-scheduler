@@ -52,10 +52,37 @@ class BasicScheduler : CronScheduler {
 			MONTH -> this[ChronoField.MONTH_OF_YEAR]
 			DAY_OF_WEEK -> this[ChronoField.DAY_OF_WEEK]
 		}
-
 	}
 
-	private fun findNextValidTime(time: Int, scheduleSection: CronType) = scheduleSection.find {it >= time} ?: TIME_NOT_FOUND
+	private fun convertDayOfWeekToDayOfMonth(startTime: LocalDateTime, dayOfWeek: CronType): List<Int> {
+		var time = startTime.withDayOfMonth(1)
+		val currentMonth = startTime[MONTH]
+		val daysOfMonth = mutableListOf<Int>()
+
+		while(currentMonth == time[MONTH]) {
+			val weekDay = if(time[DAY_OF_WEEK] == 7) 0 else time[DAY_OF_WEEK]
+
+			if(weekDay in dayOfWeek)
+				daysOfMonth += time[DAY_OF_MONTH]
+
+			time = time.plusDays(1)
+		}
+
+		return daysOfMonth
+	}
+
+	private fun findNextValidTime(time: Int, scheduleSection: Iterable<Int>) = scheduleSection.find {it >= time} ?: TIME_NOT_FOUND
+
+	private fun findNextValidTimeDay(time: LocalDateTime, dayOfMonth: CronType, dayOfWeek: CronType): Int {
+		val day = time[DAY_OF_MONTH]
+
+		if(dayOfWeek is AllCron)
+			return findNextValidTime(day, dayOfMonth)
+		else if(dayOfMonth is AllCron)
+			return findNextValidTime(day, convertDayOfWeekToDayOfMonth(time, dayOfWeek))
+		else
+			return findNextValidTime(day, (dayOfMonth + convertDayOfWeekToDayOfMonth(time, dayOfWeek)).distinct().sorted())
+	}
 
 	private tailrec fun resetTime(time: LocalDateTime, schedulesList: List<CronType>): LocalDateTime = if(schedulesList.isEmpty())
 		time
@@ -65,29 +92,33 @@ class BasicScheduler : CronScheduler {
 	override fun nextTime(schedule: CronSchedule, start: LocalDateTime): LocalDateTime {
 		var nextTime = start.withNano(0)
 		var found = false
+		val dayOfWeekSchedule = schedule.dayOfWeek
 
-		val schedulesList = listOf(schedule.second, schedule.minute, schedule.hour, schedule.dayOfMonth, schedule.month, schedule.dayOfWeek)
+		val schedulesList = listOf(schedule.second, schedule.minute, schedule.hour, schedule.dayOfMonth, schedule.month)
 
 		while(!found) {
+			found = true
 			for(i in schedulesList.indices) {
 				val scheduleSection = schedulesList[i]
-				val originalTime = nextTime[scheduleSection.section]
-				val newTime = findNextValidTime(originalTime, scheduleSection)
+				val originalSectionValue = nextTime[scheduleSection.section]
+				val newSectionValue = if(scheduleSection.section == DAY_OF_MONTH)
+					findNextValidTimeDay(nextTime, scheduleSection, dayOfWeekSchedule)
+				else
+					findNextValidTime(originalSectionValue, scheduleSection)
 
-				if(newTime != TIME_NOT_FOUND) {
-					nextTime = nextTime.with(scheduleSection.section, newTime)
+				if(newSectionValue != TIME_NOT_FOUND) {
+					nextTime = nextTime.with(scheduleSection.section, newSectionValue)
 
-					if(newTime > originalTime)
+					if(newSectionValue > originalSectionValue)
 						nextTime = resetTime(nextTime, schedulesList.take(i))
 				}
 				else {
 					nextTime = resetTime(nextTime, schedulesList.take(i + 1))
-					nextTime = nextTime.incrementSection(schedulesList[i + 1].section)
+					nextTime = if(scheduleSection.section == MONTH)	nextTime.plusYears(1)	else nextTime.incrementSection(schedulesList[i + 1].section)
+					found = false
 					break
 				}
 			}
-
-			found = true
 		}
 
 		return nextTime

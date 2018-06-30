@@ -11,7 +11,7 @@ class CronSchedulerTest {
 
 	@Test
 	fun test() {
-		println(cronScheduler.nextTime(CronSchedule(month = SingleCron(MONTH, 1))))
+		println(cronScheduler.nextTime(CronSchedule(dayOfMonth = SingleCron(DAY_OF_MONTH, 1), dayOfWeek = SingleCron(DAY_OF_WEEK, 5))))
 	}
 
 }
