@@ -200,6 +200,47 @@ class CronSchedulerTest {
 				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
 			}
 		}
+	}
+
+	@Nested
+	inner class `Given nextTimes` {
+
+		@Test
+		fun `with 1 time`() {
+			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
+			val expected = listOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0))
+			val schedule = parser.parseSchedule("0 * * * * *")
+
+			assertThat(expected).isEqualTo(cronScheduler.nextTimes(schedule, 1, current))
+		}
+
+		@Test
+		fun `with 2 times`() {
+			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
+			val expected = listOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0), LocalDateTime.of(2000, 1, 1, 0, 1, 0))
+			val schedule = parser.parseSchedule("0 * * * * *")
+
+			assertThat(expected).isEqualTo(cronScheduler.nextTimes(schedule, 2, current))
+		}
+
+		@Test
+		fun `with 3 times`() {
+			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
+			val expected = listOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0), LocalDateTime.of(2000, 1, 1, 0, 1, 0), LocalDateTime.of(2000, 1, 1, 0, 2, 0))
+			val schedule = parser.parseSchedule("0 * * * * *")
+
+			assertThat(expected).isEqualTo(cronScheduler.nextTimes(schedule, 3, current))
+		}
+
+		@Test
+		fun `with 3 times different years`() {
+			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
+			val expected = listOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0), LocalDateTime.of(2001, 1, 1, 0, 0, 0), LocalDateTime.of(2002, 1, 1, 0, 0, 0))
+			val schedule = parser.parseSchedule("0 0 0 1 JAN *")
+
+			assertThat(expected).isEqualTo(cronScheduler.nextTimes(schedule, 3, current))
+		}
 
 	}
+
 }
