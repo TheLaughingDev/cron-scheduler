@@ -10,7 +10,7 @@ interface CronScheduler {
 
 	fun nextTime(schedule: CronSchedule, start: LocalDateTime = LocalDateTime.now()): LocalDateTime
 
-	fun nextTimes(schedule: CronSchedule, start: LocalDateTime, times: Int): List<LocalDateTime> {
+	fun nextTimes(schedule: CronSchedule, times: Int, start: LocalDateTime = LocalDateTime.now()): List<LocalDateTime> {
 		val timeList = mutableListOf(nextTime(schedule, start))
 		0.until(times-1).forEach {
 			timeList += nextTime(schedule, timeList[timeList.lastIndex].plusSeconds(1))
