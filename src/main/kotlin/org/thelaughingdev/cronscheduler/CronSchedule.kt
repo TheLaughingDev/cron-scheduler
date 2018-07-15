@@ -42,4 +42,6 @@ data class CronSchedule(
 	}
 
 	companion object Helper : CronScheduleHelper
+
+	fun toCronString() = "${second.toCronString()} ${minute.toCronString()} ${hour.toCronString()} ${dayOfMonth.toCronString()} ${month.toCronString()} ${dayOfWeek.toCronString()}"
 }

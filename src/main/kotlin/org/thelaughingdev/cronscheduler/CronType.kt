@@ -5,6 +5,8 @@ sealed class CronType() : Iterable<Int> {
 	protected abstract fun validate()
 
 	abstract val section: CronSection
+
+	abstract fun toCronString(): String
 }
 
 sealed class ContinuousRangeCron() : CronType()
@@ -16,6 +18,8 @@ data class RangeCron(val start: SingleCron, val end: SingleCron) : ContinuousRan
 	}
 
 	override val section = start.section
+
+	override fun toCronString() = "${start.toCronString()}-${end.toCronString()}"
 
 	override fun iterator() = (start.value..end.value).iterator()
 
@@ -36,6 +40,8 @@ data class StepCron(val base: ContinuousRangeCron, val step: Int) : ContinuousRa
 
 	override val section = base.section
 
+	override fun toCronString() = "${base.toCronString()}/$step"
+
 	override fun iterator() = when(base) {
 		is SingleCron -> (base.value..section.range.endInclusive).filterIndexed { i, _ -> i == 0 || i % step == 0 }.iterator()
 		else -> base.filterIndexed { i, _ -> i == 0 || i % step == 0 }.iterator()
@@ -53,6 +59,8 @@ data class SingleCron(override val section: CronSection, val value :Int) : Conti
 		validate()
 	}
 
+	override fun toCronString() = value.toString()
+
 	override fun iterator() = arrayOf(value).iterator()
 
 	override fun validate() {
@@ -67,6 +75,8 @@ data class AllCron(override val section: CronSection) : ContinuousRangeCron() {
 		validate()
 	}
 
+	override fun toCronString() = "*"
+
 	override fun iterator() = section.range.iterator()
 
 	override fun validate() = Unit
@@ -77,6 +87,8 @@ data class ListCron(override val section: CronSection, val list: List<Continuous
 	init {
 		validate()
 	}
+
+	override fun toCronString() = list.map { it.toCronString() }.joinToString(",")
 
 	override fun iterator() = list.flatMap { it }.distinct().sorted().iterator()
 

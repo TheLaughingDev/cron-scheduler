@@ -49,6 +49,12 @@ class CronTypeTest {
 			val cron = AllCron(DAY_OF_WEEK)
 			assertThat(cron).containsAll(DAY_OF_WEEK.range)
 		}
+
+		@Test
+		fun `with toCronString`() {
+			val cron = AllCron(MONTH)
+			assertThat(cron.toCronString()).isEqualTo("*")
+		}
 	}
 
 	@Nested
@@ -71,6 +77,13 @@ class CronTypeTest {
 		fun `not valid with value after section`() {
 			val i = 60
 			assertThrows<CronValidationException> { SingleCron(SECOND, i) }
+		}
+
+		@Test
+		fun `with toCronString`() {
+			val i = 59
+			val cron = SingleCron(SECOND, i)
+			assertThat(cron.toCronString()).isEqualTo(i.toString())
 		}
 	}
 
@@ -95,6 +108,14 @@ class CronTypeTest {
 			val i = 5
 			val j = 10
 			assertThrows<CronValidationException> { RangeCron(SingleCron(SECOND, j), SingleCron(SECOND, i)) }
+		}
+
+		@Test
+		fun `with toCronString`() {
+			val i = 5
+			val j = 10
+			val cron = RangeCron(SingleCron(SECOND, i), SingleCron(SECOND, j))
+			assertThat(cron.toCronString()).isEqualTo("$i-$j")
 		}
 	}
 
@@ -153,6 +174,15 @@ class CronTypeTest {
 		fun `not valid with base of StepCron`() {
 			assertThrows<CronValidationException> { StepCron(StepCron(AllCron(SECOND), 3), 1) }
 		}
+
+		@Test
+		fun `with toCronString`() {
+			val i = 20
+			val j = 40
+			val step = 3
+			val cron = StepCron(RangeCron(SingleCron(SECOND, i), SingleCron(SECOND, j)), step)
+			assertThat(cron.toCronString()).isEqualTo("$i-$j/$step")
+		}
 	}
 
 	@Nested
@@ -199,6 +229,12 @@ class CronTypeTest {
 		fun `not valid with different sections`() {
 			assertThrows<CronValidationException> { ListCron(SECOND, listOf(SingleCron(SECOND, 5), SingleCron(MINUTE, 5))) }
 		}
-	}
 
+		@Test
+		fun `with toCronString`() {
+			val cron = ListCron(SECOND, listOf(SingleCron(SECOND, 1), SingleCron(SECOND, 3),
+				StepCron(RangeCron(SingleCron(SECOND, 5), SingleCron(SECOND, 10)), 2)))
+			assertThat(cron.toCronString()).isEqualTo("1,3,5-10/2")
+		}
+	}
 }

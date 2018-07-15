@@ -2,7 +2,6 @@ package org.thelaughingdev.cronscheduler
 
 import java.time.LocalDateTime
 import java.time.temporal.ChronoField
-import java.util.*
 
 import org.thelaughingdev.cronscheduler.CronSection.*
 
@@ -18,14 +17,12 @@ interface CronScheduler {
 
 		return timeList.toList()
 	}
-
-	fun scheduleNext(schedule: CronSchedule, start: LocalDateTime = LocalDateTime.now()): TimerTask
 }
 
 class BasicScheduler : CronScheduler {
 
 	private companion object {
-		val TIME_NOT_FOUND = -1
+		const val TIME_NOT_FOUND = -1
 
 		fun LocalDateTime.incrementSection(section: CronSection): LocalDateTime = when(section) {
 			SECOND -> this.plusSeconds(1)
@@ -122,9 +119,5 @@ class BasicScheduler : CronScheduler {
 		}
 
 		return nextTime
-	}
-
-	override fun scheduleNext(schedule: CronSchedule, start: LocalDateTime): TimerTask {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 }
