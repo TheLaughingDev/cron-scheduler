@@ -2,7 +2,6 @@ package org.thelaughingdev.cronscheduler
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import org.thelaughingdev.cronscheduler.CronSection.*
 import java.time.LocalDateTime
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

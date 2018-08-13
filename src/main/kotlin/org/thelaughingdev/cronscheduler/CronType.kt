@@ -1,103 +1,103 @@
 package org.thelaughingdev.cronscheduler
 
-sealed class CronType() : Iterable<Int> {
+sealed class CronType() {
+	abstract fun possibleValues(range: IntRange): List<Int>
 
-	protected abstract fun validate()
+	override fun equals(other: Any?): Boolean {
+		if(this === other) return true
+		if(other !is CronType) return false
+		return true
+	}
 
-	abstract val section: CronSection
+	override fun hashCode(): Int {
+		return javaClass.hashCode()
+	}
 
-	abstract fun toCronString(): String
+
 }
 
-sealed class ContinuousRangeCron() : CronType()
+sealed class ContinuousRangeCron() : CronType() {
 
-data class RangeCron(val start: SingleCron, val end: SingleCron) : ContinuousRangeCron() {
+	override fun equals(other: Any?): Boolean {
+		if(this === other) return true
+		if(other !is ContinuousRangeCron) return false
+		if(!super.equals(other)) return false
+		return true
+	}
+
+	override fun hashCode(): Int {
+		return super.hashCode()
+	}
+}
+
+data class RangeCron(val range: IntRange) : ContinuousRangeCron() {
 
 	init {
-		validate()
-	}
-
-	override val section = start.section
-
-	override fun toCronString() = "${start.toCronString()}-${end.toCronString()}"
-
-	override fun iterator() = (start.value..end.value).iterator()
-
-	override fun validate() {
-		if(start.section != end.section)
-			throw CronValidationException("start and end must be in the same section.")
-
-		if(end.value < start.value)
+		if(range.endInclusive < range.start)
 			throw CronValidationException("start must come before end.")
 	}
+
+	override fun possibleValues(range: IntRange) = (this.range).toList()
+
+	override fun toString() = "${range.start}-${range.endInclusive}"
 }
 
 data class StepCron(val base: ContinuousRangeCron, val step: Int) : ContinuousRangeCron() {
 
 	init {
-		validate()
-	}
-
-	override val section = base.section
-
-	override fun toCronString() = "${base.toCronString()}/$step"
-
-	override fun iterator() = when(base) {
-		is SingleCron -> (base.value..section.range.endInclusive).filterIndexed { i, _ -> i == 0 || i % step == 0 }.iterator()
-		else -> base.filterIndexed { i, _ -> i == 0 || i % step == 0 }.iterator()
-	}
-
-	override fun validate() {
 		if(base is StepCron)
 			throw CronValidationException("base cannot be of type ${StepCron::class.java}.")
 	}
+
+	constructor(range: IntRange, step: Int): this(RangeCron(range.first..range.endInclusive), step)
+	constructor(singleValue: Int, step: Int): this(SingleCron(singleValue), step)
+	constructor(step: Int): this(AllCron(), step)
+
+	override fun possibleValues(range: IntRange) = when(base) {
+		is SingleCron -> (base.value..range.endInclusive).filterIndexed { i, _ -> i == 0 || i % step == 0 }.toList()
+		else -> base.possibleValues(range).filterIndexed { i, _ -> i == 0 || i % step == 0 }.toList()
+	}
+
+	override fun toString() = "$base/$step"
 }
 
-data class SingleCron(override val section: CronSection, val value :Int) : ContinuousRangeCron() {
+data class SingleCron(val value :Int) : ContinuousRangeCron() {
 
-	init {
-		validate()
-	}
+	override fun possibleValues(range: IntRange) = listOf(value)
 
-	override fun toCronString() = value.toString()
-
-	override fun iterator() = arrayOf(value).iterator()
-
-	override fun validate() {
-		if(value !in section.range)
-			throw CronValidationException(value, section)
-	}
+	override fun toString() = value.toString()
 }
 
-data class AllCron(override val section: CronSection) : ContinuousRangeCron() {
+class AllCron() : ContinuousRangeCron() {
 
-	init {
-		validate()
+	override fun possibleValues(range: IntRange) = range.toList()
+
+	override fun equals(other: Any?): Boolean {
+		if(this === other) return true
+		if(javaClass != other?.javaClass) return false
+		return true
 	}
 
-	override fun toCronString() = "*"
+	override fun hashCode(): Int {
+		return javaClass.hashCode()
+	}
 
-	override fun iterator() = section.range.iterator()
+	override fun toString() = "*"
 
-	override fun validate() = Unit
 }
 
-data class ListCron(override val section: CronSection, val list: List<ContinuousRangeCron>) : CronType() {
+data class ListCron(val list: List<ContinuousRangeCron>) : CronType() {
 
 	init {
-		validate()
-	}
-
-	override fun toCronString() = list.map { it.toCronString() }.joinToString(",")
-
-	override fun iterator() = list.flatMap { it }.distinct().sorted().iterator()
-
-	override fun validate() {
 		if(list.isEmpty())
 			throw CronValidationException("list cannot be empty.")
-
-		for(type in list)
-			if(type.section != section)
-				throw CronValidationException("All items in ${ListCron::class.java} must have the same section.")
 	}
+
+	constructor(vararg l: ContinuousRangeCron): this(l.toList())
+
+	constructor(vararg l: Int): this(l.map { SingleCron(it) })
+
+	override fun possibleValues(range: IntRange) = list.flatMap { it.possibleValues(range) }.distinct().sorted().toList()
+
+	override fun toString() = list.map { it.toString() }.joinToString(",")
 }

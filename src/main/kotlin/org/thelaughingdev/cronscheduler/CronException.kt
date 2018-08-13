@@ -4,6 +4,4 @@ sealed class CronException(msg: String, cause: Throwable? = null) : RuntimeExcep
 
 class CronParseException(msg: String, data: ParserData, cause: Throwable? = null) : CronException(msg + ": column [${data.position}]", cause)
 
-class CronValidationException(msg: String, cause: Throwable? = null) : CronException(msg, cause) {
-	constructor(value: Any, section: CronSection) : this("$value is not valid for $section")
-}
+class CronValidationException(msg: String, cause: Throwable? = null) : CronException(msg, cause)
