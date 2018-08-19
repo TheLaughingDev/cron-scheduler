@@ -70,17 +70,19 @@ class CronTypeTest {
 
 		@Test
 		fun `with possibleValues`() {
-			val range = 300..400
-			val cron = RangeCron(range)
-			assertThat(cron.possibleValues(range)).containsAll(range)
-			assertThat(cron.possibleValues(range)).doesNotContain(range.first - 1, range.last + 1)
+			val range = 0..30
+			val step = 5
+			val cron = StepCron(range, step)
+			assertThat(cron.possibleValues(range)).containsAll(listOf(0,5,10,15,20,25,30))
+			assertThat(cron.possibleValues(range)).doesNotContain(-1, 6, 31)
 		}
 
 		@Test
 		fun `with toString`() {
-			val range = 100..200
-			val cron = RangeCron(range)
-			assertThat(cron.toString()).isEqualTo("${range.first}-${range.last}")
+			val range = 0..30
+			val step = 5
+			val cron = StepCron(range, step)
+			assertThat(cron.toString()).isEqualTo("0-30/5")
 		}
 	}
 
@@ -101,7 +103,4 @@ class CronTypeTest {
 			assertThat(cron.toString()).isEqualTo("1-5,10,11-20/5")
 		}
 	}
-
-
-
 }
