@@ -2,6 +2,7 @@ package org.thelaughingdev.cronscheduler
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.lang.IllegalArgumentException
 import java.time.LocalDateTime
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -238,6 +239,14 @@ class CronSchedulerTest {
 			val schedule = parser.parseSchedule("0 0 0 1 JAN *")
 
 			assertThat(expected).isEqualTo(cronScheduler.nextTimes(schedule, 3, current))
+		}
+
+		@Test()
+		fun `with 5 time`() {
+			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
+			val schedule = parser.parseSchedule("0 * * * * *")
+
+			assertThrows<IllegalArgumentException> { cronScheduler.nextTimes(schedule, 0, current) }
 		}
 
 	}
