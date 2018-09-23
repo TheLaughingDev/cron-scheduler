@@ -242,7 +242,7 @@ class CronSchedulerTest {
 		}
 
 		@Test()
-		fun `with 5 time`() {
+		fun `with 0 time`() {
 			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 			val schedule = parser.parseSchedule("0 * * * * *")
 
