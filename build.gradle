@@ -1,5 +1,5 @@
 plugins {
-	id "org.jetbrains.kotlin.jvm" version '1.2.51'
+	id "org.jetbrains.kotlin.jvm" version '1.2.70'
 }
 
 repositories {
@@ -16,7 +16,7 @@ compileTestKotlin {
 	kotlinOptions.jvmTarget = "1.8"
 }
 
-def kotlinVersion = '1.2.51'
+def kotlinVersion = '1.2.70'
 
 dependencies {
 	compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
