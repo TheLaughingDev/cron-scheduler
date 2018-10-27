@@ -25,11 +25,11 @@ sealed class CronType() {
 /**
  * Base class for continuous range cron types. This is all types except list.
  */
-sealed class ContinuousRangeCron() : CronType() {
+sealed class CronContinuousRange() : CronType() {
 
 	override fun equals(other: Any?): Boolean {
 		if(this === other) return true
-		if(other !is ContinuousRangeCron) return false
+		if(other !is CronContinuousRange) return false
 		if(!super.equals(other)) return false
 		return true
 	}
@@ -43,7 +43,7 @@ sealed class ContinuousRangeCron() : CronType() {
  * A range cron in the form of n-m.
  * @param range The range of values. m must be greater than n.
  */
-data class RangeCron(val range: IntRange) : ContinuousRangeCron() {
+data class CronRange(val range: IntRange) : CronContinuousRange() {
 
 	init {
 		if(range.endInclusive < range.start)
@@ -57,14 +57,14 @@ data class RangeCron(val range: IntRange) : ContinuousRangeCron() {
 
 /**
  * A step cron in the form of *\/s, n-m/s, n/s.
- * @param base The base continuous range cron type for the step. Cannot be a StepCron.
+ * @param base The base continuous range cron type for the step. Cannot be a CronStep.
  * @param step The step value.
  */
-data class StepCron(val base: ContinuousRangeCron, val step: Int) : ContinuousRangeCron() {
+data class CronStep(val base: CronContinuousRange, val step: Int) : CronContinuousRange() {
 
 	init {
-		if(base is StepCron)
-			throw CronValidationException("base cannot be of type ${StepCron::class.java}.")
+		if(base is CronStep)
+			throw CronValidationException("base cannot be of type ${CronStep::class.java}.")
 	}
 
 	/**
@@ -72,23 +72,23 @@ data class StepCron(val base: ContinuousRangeCron, val step: Int) : ContinuousRa
 	 * @param range The range for the step.
 	 * @param step The step value.
 	 */
-	constructor(range: IntRange, step: Int): this(RangeCron(range.first..range.endInclusive), step)
+	constructor(range: IntRange, step: Int): this(CronRange(range.first..range.endInclusive), step)
 
 	/**
 	 * Convienence constructor for making a step with a single value.
 	 * @param singleValue The single value for the step.
 	 * @param step The step value.
 	 */
-	constructor(singleValue: Int, step: Int): this(SingleCron(singleValue), step)
+	constructor(singleValue: Int, step: Int): this(CronSingle(singleValue), step)
 
 	/**
-	 * Convienence constructor for making a step with an AllCron.
+	 * Convienence constructor for making a step with an CronAll.
 	 * @param step The step value.
 	 */
-	constructor(step: Int): this(AllCron(), step)
+	constructor(step: Int): this(CronAll(), step)
 
 	override fun possibleValues(range: IntRange) = when(base) {
-		is SingleCron -> (base.value..range.endInclusive).filterIndexed { i, _ -> i == 0 || i % step == 0 }.toList()
+		is CronSingle -> (base.value..range.endInclusive).filterIndexed { i, _ -> i == 0 || i % step == 0 }.toList()
 		else -> base.possibleValues(range).filterIndexed { i, _ -> i == 0 || i % step == 0 }.toList()
 	}
 
@@ -99,7 +99,7 @@ data class StepCron(val base: ContinuousRangeCron, val step: Int) : ContinuousRa
  * The single cron value in the form of n.
  * @param value The value.
  */
-data class SingleCron(val value :Int) : ContinuousRangeCron() {
+data class CronSingle(val value :Int) : CronContinuousRange() {
 
 	override fun possibleValues(range: IntRange) = listOf(value)
 
@@ -109,7 +109,7 @@ data class SingleCron(val value :Int) : ContinuousRangeCron() {
 /**
  * An all cron in the form of *.
  */
-class AllCron() : ContinuousRangeCron() {
+class CronAll() : CronContinuousRange() {
 
 	override fun possibleValues(range: IntRange) = range.toList()
 
@@ -131,7 +131,7 @@ class AllCron() : ContinuousRangeCron() {
  * A list cron in the form of x,y,z.
  * @param list The list of continuous range crons.
  */
-data class ListCron(val list: List<ContinuousRangeCron>) : CronType() {
+data class CronList(val list: List<CronContinuousRange>) : CronType() {
 
 	init {
 		if(list.isEmpty())
@@ -142,13 +142,13 @@ data class ListCron(val list: List<ContinuousRangeCron>) : CronType() {
 	 * Convience constructor that takes a varag.
 	 * @param l The list of continuous range crons.
 	 */
-	constructor(vararg l: ContinuousRangeCron): this(l.toList())
+	constructor(vararg l: CronContinuousRange): this(l.toList())
 
 	/**
 	 * Convience constructor that takes a vararg of ints as creates the list a list of SingleCrons
 	 * @param l The list of ints.
 	 */
-	constructor(vararg l: Int): this(l.map { SingleCron(it) })
+	constructor(vararg l: Int): this(l.map { CronSingle(it) })
 
 	override fun possibleValues(range: IntRange) = list.flatMap { it.possibleValues(range) }.distinct().sorted().toList()
 

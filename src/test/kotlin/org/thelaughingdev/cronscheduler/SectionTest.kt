@@ -35,14 +35,14 @@ class SectionTest {
 		@Test
 		fun `with step 1`() {
 			val step = 1
-			val section = Second(StepCron(step))
+			val section = Second(CronStep(step))
 			assertThat(section.possibleValues()).containsAll(section.range)
 		}
 
 		@Test
 		fun `with list 1,3,5`() {
 			val arr = intArrayOf(1, 3, 5)
-			val section = Second(ListCron(*arr))
+			val section = Second(CronList(*arr))
 			assertThat(section.possibleValues()).containsAll(arr.toList())
 		}
 
@@ -80,14 +80,14 @@ class SectionTest {
 		@Test
 		fun `with step 1`() {
 			val step = 1
-			val section = Minute(StepCron(step))
+			val section = Minute(CronStep(step))
 			assertThat(section.possibleValues()).containsAll(section.range)
 		}
 
 		@Test
 		fun `with list 1,3,5`() {
 			val arr = intArrayOf(1, 3, 5)
-			val section = Minute(ListCron(*arr))
+			val section = Minute(CronList(*arr))
 			assertThat(section.possibleValues()).containsAll(arr.toList())
 		}
 
@@ -125,14 +125,14 @@ class SectionTest {
 		@Test
 		fun `with step 1`() {
 			val step = 1
-			val section = Hour(StepCron(step))
+			val section = Hour(CronStep(step))
 			assertThat(section.possibleValues()).containsAll(section.range)
 		}
 
 		@Test
 		fun `with list 1,3,5`() {
 			val arr = intArrayOf(1, 3, 5)
-			val section = Hour(ListCron(*arr))
+			val section = Hour(CronList(*arr))
 			assertThat(section.possibleValues()).containsAll(arr.toList())
 		}
 
@@ -170,14 +170,14 @@ class SectionTest {
 		@Test
 		fun `with step 1`() {
 			val step = 1
-			val section = DayOfMonth(StepCron(step))
+			val section = DayOfMonth(CronStep(step))
 			assertThat(section.possibleValues()).containsAll(section.range)
 		}
 
 		@Test
 		fun `with list 1,3,5`() {
 			val arr = intArrayOf(1, 3, 5)
-			val section = DayOfMonth(ListCron(*arr))
+			val section = DayOfMonth(CronList(*arr))
 			assertThat(section.possibleValues()).containsAll(arr.toList())
 		}
 
@@ -215,14 +215,14 @@ class SectionTest {
 		@Test
 		fun `with step 1`() {
 			val step = 1
-			val section = Month(StepCron(step))
+			val section = Month(CronStep(step))
 			assertThat(section.possibleValues()).containsAll(section.range)
 		}
 
 		@Test
 		fun `with list 1,3,5`() {
 			val arr = intArrayOf(1, 3, 5)
-			val section = Month(ListCron(*arr))
+			val section = Month(CronList(*arr))
 			assertThat(section.possibleValues()).containsAll(arr.toList())
 		}
 
@@ -260,14 +260,14 @@ class SectionTest {
 		@Test
 		fun `with step 1`() {
 			val step = 1
-			val section = DayOfWeek(StepCron(step))
+			val section = DayOfWeek(CronStep(step))
 			assertThat(section.possibleValues()).containsAll(section.range)
 		}
 
 		@Test
 		fun `with list 1,3,5`() {
 			val arr = intArrayOf(1, 3, 5)
-			val section = DayOfWeek(ListCron(*arr))
+			val section = DayOfWeek(CronList(*arr))
 			assertThat(section.possibleValues()).containsAll(arr.toList())
 		}
 

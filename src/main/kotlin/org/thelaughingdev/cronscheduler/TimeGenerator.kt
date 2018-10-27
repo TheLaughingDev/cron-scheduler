@@ -6,7 +6,7 @@ import java.time.temporal.ChronoField.*
 /**
  * Determines the next time a cron event fires given a schedule.
  */
-interface CronScheduler {
+interface TimeGenerator {
 
 	/**
 	 * Given a schedule a start time determines the next time the cron schedule will fire. This could be on
@@ -15,32 +15,24 @@ interface CronScheduler {
 	 * @param start The start time.
 	 * @return The next time cron event will fire.
 	 */
-	fun nextTime(schedule: CronSchedule, start: LocalDateTime = LocalDateTime.now()): LocalDateTime
+	fun nextTime(schedule: Schedule, start: LocalDateTime = LocalDateTime.now()): LocalDateTime
 
 	/**
-	 * Given a schedule and start time determines the next n times the schedule will fire. This could start on
-	 * or after the start time.
+	 * Generates a lazy sequence of cron times given a schedule and start time. Each increment will generate the next schedule.
 	 * @param schedule The cron schedule.
-	 * @param n The number of times to check. Must be 1 or greater.
 	 * @param start The start time.
-	 * @return List of the next n times. The list size is the same as n.
+	 * @return Lazy sequence of cron times.
 	 */
-	fun nextTimes(schedule: CronSchedule, n: Int, start: LocalDateTime = LocalDateTime.now()): List<LocalDateTime> {
-		require(n > 0) {"n must be greater than 0."}
-
-		val timeList = mutableListOf(nextTime(schedule, start))
-		0.until(n-1).forEach {
-			timeList += nextTime(schedule, timeList[timeList.lastIndex].plusSeconds(1))
-		}
-
-		return timeList.toList()
+	fun nextTimes(schedule: Schedule, start: LocalDateTime = LocalDateTime.now()) = generateSequence(nextTime(schedule, start)) {
+		t -> nextTime(schedule, t.plusSeconds(1))
 	}
+
 }
 
 /**
  * Basic scheduler implementation.
  */
-class BasicScheduler : CronScheduler {
+class BasicTimeGenerator : TimeGenerator {
 
 	/**
 	 * Companion object to hold helper functions.
@@ -127,9 +119,9 @@ class BasicScheduler : CronScheduler {
 	private fun findNextValidTimeDay(time: LocalDateTime, dayOfMonth: DayOfMonth, dayOfWeek: DayOfWeek): Int {
 		val day = time[DAY_OF_MONTH]
 
-		if(dayOfWeek.cron is AllCron)
+		if(dayOfWeek.cron is CronAll)
 			return findNextValidTime(day, dayOfMonth.possibleValues())
-		else if(dayOfMonth.cron is AllCron)
+		else if(dayOfMonth.cron is CronAll)
 			return findNextValidTime(day, convertDayOfWeekToDayOfMonth(time, dayOfWeek))
 		else
 			return findNextValidTime(day, (dayOfMonth.possibleValues() + convertDayOfWeekToDayOfMonth(time, dayOfWeek)).distinct().sorted())
@@ -147,7 +139,7 @@ class BasicScheduler : CronScheduler {
 	else
 		resetTime(time.with(schedulesList.first(), schedulesList.first().possibleValues().first()), schedulesList.takeLast(schedulesList.size - 1))
 
-	override fun nextTime(schedule: CronSchedule, start: LocalDateTime): LocalDateTime {
+	override fun nextTime(schedule: Schedule, start: LocalDateTime): LocalDateTime {
 		var nextTime = start.withNano(0)
 		var found = false
 		val dayOfWeekSchedule = schedule.dayOfWeek

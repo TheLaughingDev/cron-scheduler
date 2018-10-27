@@ -5,20 +5,20 @@ import org.thelaughingdev.cronscheduler.BasicParser.ParserData.ParserSymbol.*
 /**
  * Interface for a cron parsing class.
  */
-interface CronParser {
+interface Parser {
 
 	/**
 	 * Parses the given cron string.
 	 * @return The schedule based off of the given string.
 	 */
-	fun parseSchedule(strSchedule: String): CronSchedule
+	fun parseSchedule(strSchedule: String): Schedule
 }
 
 /**
  * Parser for parsing standard cron schedules.
- * @param cronSchedulerHelper Helper class used during parsing.
+ * @param schedulerHelper Helper class used during parsing.
  */
-class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSchedule.Helper) : CronParser {
+class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper) : Parser {
 
 	/**
 	 * Holds information about the string being parsed and the current parsing position.
@@ -120,17 +120,17 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 	 * @param data The data being parsed.
 	 * @return The schedule.
 	 */
-	private fun parseSpecialAttributes(data: ParserData): CronSchedule {
+	private fun parseSpecialAttributes(data: ParserData): Schedule {
 		val specialAttribute = data.readLower()
 
 		return when(specialAttribute) {
-			"yearly", "annually" -> cronSchedulerHelper.YEARLY
-			"monthly" -> cronSchedulerHelper.MONTHLY
-			"weekly" -> cronSchedulerHelper.WEEKLY
-			"daily" -> cronSchedulerHelper.DAILY
-			"hourly" -> cronSchedulerHelper.HOURLY
-			"reboot" -> cronSchedulerHelper.now()
-			"now" -> cronSchedulerHelper.now()
+			"yearly", "annually" -> schedulerHelper.YEARLY
+			"monthly" -> schedulerHelper.MONTHLY
+			"weekly" -> schedulerHelper.WEEKLY
+			"daily" -> schedulerHelper.DAILY
+			"hourly" -> schedulerHelper.HOURLY
+			"reboot" -> schedulerHelper.now()
+			"now" -> schedulerHelper.now()
 			else -> throw CronParseException("@$specialAttribute is not a valid expression", data.position)
 		}
 	}
@@ -141,8 +141,8 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 	 * @param base The base of the step.
 	 * @return The built step cron type.
 	 */
-	private fun parseStep(data: ParserData, base: ContinuousRangeCron): StepCron = when(data.symbol) {
-		DIGIT -> StepCron(base, data.readDigits())
+	private fun parseStep(data: ParserData, base: CronContinuousRange): CronStep = when(data.symbol) {
+		DIGIT -> CronStep(base, data.readDigits())
 		else ->  throw CronParseException("Step value must be integer. Unexpected symbol ${data.symbol}", data.position)
 	}
 
@@ -153,8 +153,8 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 	 * @param section The section being parsed.
 	 * @return The built range cron type.
 	 */
-	private fun parseRange(data: ParserData, start: Int, section: Section): RangeCron = when(data.symbol) {
-		DIGIT, UPPER_CHAR -> RangeCron(start..readConstant(data, section))
+	private fun parseRange(data: ParserData, start: Int, section: Section): CronRange = when(data.symbol) {
+		DIGIT, UPPER_CHAR -> CronRange(start..readConstant(data, section))
 		else -> throw CronParseException("Unexpected symbol ${data.symbol}", data.position)
 	}
 
@@ -164,11 +164,11 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 	 * @param section The section being parsed.
 	 * @return The continuous range cron type.
 	 */
-	private fun parseContinuousRangeCron(data: ParserData, section: Section): ContinuousRangeCron = when(data.symbol) {
+	private fun parseContinuousRangeCron(data: ParserData, section: Section): CronContinuousRange = when(data.symbol) {
 		ASTERISK -> {
 			when(data.next().symbol) {
-				WHITE_SPACE, NONE -> AllCron()
-				SLASH -> parseStep(data.next(), AllCron())
+				WHITE_SPACE, NONE -> CronAll()
+				SLASH -> parseStep(data.next(), CronAll())
 				else -> throw CronParseException("Unexpected symbol ${data.symbol}", data.position)
 			}
 		}
@@ -182,8 +182,8 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 					else
 						range
 				}
-				SLASH -> parseStep(data.next(), SingleCron(value))
-				else -> SingleCron(value)
+				SLASH -> parseStep(data.next(), CronSingle(value))
+				else -> CronSingle(value)
 			}
 		}
 		else -> throw CronParseException("Unexpected symbol ${data.symbol}", data.position)
@@ -195,7 +195,7 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 	 * @param data The data being parsed.
 	 * @return The list cron type.
 	 */
-	private fun parseList(list: List<ContinuousRangeCron>, data: ParserData, section: Section): List<ContinuousRangeCron> {
+	private fun parseList(list: List<CronContinuousRange>, data: ParserData, section: Section): List<CronContinuousRange> {
 		val cronType = parseContinuousRangeCron(data, section)
 
 		return if(data.symbol == COMMA)
@@ -214,17 +214,17 @@ class BasicParser(private val cronSchedulerHelper: CronScheduleHelper = CronSche
 		data.readWhiteSpace()
 
 		val firstItem = parseContinuousRangeCron(data, section)
-		return if(data.symbol == COMMA) section.copy(ListCron(parseList(listOf(firstItem), data.next(), section))) else section.copy(firstItem)
+		return if(data.symbol == COMMA) section.copy(CronList(parseList(listOf(firstItem), data.next(), section))) else section.copy(firstItem)
 	}
 
-	override fun parseSchedule(strSchedule: String): CronSchedule {
+	override fun parseSchedule(strSchedule: String): Schedule {
 
 		val data = ParserData(strSchedule.trim())
 
 		if(data.symbol == AT)
 			return parseSpecialAttributes(data.next())
 
-		val schedule = CronSchedule(parseSection(data, Second()) as Second,
+		val schedule = Schedule(parseSection(data, Second()) as Second,
 			parseSection(data.next(), Minute()) as Minute,
 			parseSection(data.next(), Hour()) as Hour,
 			parseSection(data.next(), DayOfMonth()) as DayOfMonth,
