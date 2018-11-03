@@ -23,9 +23,10 @@ interface TimeGenerator {
 	 * @param start The start time.
 	 * @return Lazy sequence of cron times.
 	 */
-	fun nextTimes(schedule: Schedule, start: LocalDateTime = LocalDateTime.now()) = generateSequence(nextTime(schedule, start)) { t ->
-		nextTime(schedule, t.plusSeconds(1))
-	}
+	fun nextTimes(schedule: Schedule, start: LocalDateTime = LocalDateTime.now()) =
+		generateSequence(nextTime(schedule, start)) { t ->
+			nextTime(schedule, t.plusSeconds(1))
+		}
 
 }
 
@@ -125,7 +126,10 @@ class BasicTimeGenerator : TimeGenerator {
 		else if(dayOfMonth.cron is CronAll)
 			return findNextValidTime(day, convertDayOfWeekToDayOfMonth(time, dayOfWeek))
 		else
-			return findNextValidTime(day, (dayOfMonth.possibleValues() + convertDayOfWeekToDayOfMonth(time, dayOfWeek)).distinct().sorted())
+			return findNextValidTime(
+				day,
+				(dayOfMonth.possibleValues() + convertDayOfWeekToDayOfMonth(time, dayOfWeek)).distinct().sorted()
+			)
 	}
 
 	/**
@@ -135,10 +139,14 @@ class BasicTimeGenerator : TimeGenerator {
 	 * @param schedulesList The list of schedules.
 	 * @return Time with values reset.
 	 */
-	private tailrec fun resetTime(time: LocalDateTime, schedulesList: List<Section>): LocalDateTime = if(schedulesList.isEmpty())
-		time
-	else
-		resetTime(time.with(schedulesList.first(), schedulesList.first().possibleValues().first()), schedulesList.takeLast(schedulesList.size - 1))
+	private tailrec fun resetTime(time: LocalDateTime, schedulesList: List<Section>): LocalDateTime =
+		if(schedulesList.isEmpty())
+			time
+		else
+			resetTime(
+				time.with(schedulesList.first(), schedulesList.first().possibleValues().first()),
+				schedulesList.takeLast(schedulesList.size - 1)
+			)
 
 	override fun nextTime(schedule: Schedule, start: LocalDateTime): LocalDateTime {
 		var nextTime = start.withNano(0)
@@ -164,7 +172,8 @@ class BasicTimeGenerator : TimeGenerator {
 						nextTime = resetTime(nextTime, schedulesList.take(i))
 				} else {
 					nextTime = resetTime(nextTime, schedulesList.take(i + 1))
-					nextTime = if(scheduleSection is Month) nextTime.plusYears(1) else nextTime.incrementSection(schedulesList[i + 1])
+					nextTime =
+						if(scheduleSection is Month) nextTime.plusYears(1) else nextTime.incrementSection(schedulesList[i + 1])
 					found = false
 					break
 				}

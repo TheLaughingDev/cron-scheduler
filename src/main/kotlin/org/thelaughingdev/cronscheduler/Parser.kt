@@ -207,7 +207,11 @@ class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper)
 	 * @param data The data being parsed.
 	 * @return The list cron type.
 	 */
-	private fun parseList(list: List<CronContinuousRange>, data: ParserData, section: Section): List<CronContinuousRange> {
+	private fun parseList(
+		list: List<CronContinuousRange>,
+		data: ParserData,
+		section: Section
+	): List<CronContinuousRange> {
 		val cronType = parseContinuousRangeCron(data, section)
 
 		return if(data.symbol == COMMA)
@@ -226,7 +230,15 @@ class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper)
 		data.readWhiteSpace()
 
 		val firstItem = parseContinuousRangeCron(data, section)
-		return if(data.symbol == COMMA) section.copy(CronList(parseList(listOf(firstItem), data.next(), section))) else section.copy(firstItem)
+		return if(data.symbol == COMMA) section.copy(
+			CronList(
+				parseList(
+					listOf(firstItem),
+					data.next(),
+					section
+				)
+			)
+		) else section.copy(firstItem)
 	}
 
 	override fun parseSchedule(strSchedule: String): Schedule {
@@ -236,12 +248,14 @@ class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper)
 		if(data.symbol == AT)
 			return parseSpecialAttributes(data.next())
 
-		val schedule = Schedule(parseSection(data, Second()) as Second,
+		val schedule = Schedule(
+			parseSection(data, Second()) as Second,
 			parseSection(data.next(), Minute()) as Minute,
 			parseSection(data.next(), Hour()) as Hour,
 			parseSection(data.next(), DayOfMonth()) as DayOfMonth,
 			parseSection(data.next(), Month()) as Month,
-			parseSection(data.next(), DayOfWeek()) as DayOfWeek)
+			parseSection(data.next(), DayOfWeek()) as DayOfWeek
+		)
 
 		if(data.symbol != NONE)
 			throw CronParseException("Extra data after parsing schedule", data.position)

@@ -180,9 +180,13 @@ class DayOfMonth(cron: CronType) : Section(cron, 1..31, mapOf()) {
  * The month section.
  * @param cron The cron type.
  */
-class Month(cron: CronType) : Section(cron, 1..12, mapOf(Pair("JAN", 1), Pair("FEB", 2), Pair("MAR", 3), Pair("APR", 4),
-	Pair("MAY", 5), Pair("JUN", 6), Pair("JUL", 7), Pair("AUG", 8), Pair("SEP", 9),
-	Pair("OCT", 10), Pair("NOV", 11), Pair("DEC", 12))) {
+class Month(cron: CronType) : Section(
+	cron, 1..12, mapOf(
+		Pair("JAN", 1), Pair("FEB", 2), Pair("MAR", 3), Pair("APR", 4),
+		Pair("MAY", 5), Pair("JUN", 6), Pair("JUL", 7), Pair("AUG", 8), Pair("SEP", 9),
+		Pair("OCT", 10), Pair("NOV", 11), Pair("DEC", 12)
+	)
+) {
 	/**
 	 * Convience constructor to create the section using a CronAll.
 	 */
@@ -216,8 +220,12 @@ class Month(cron: CronType) : Section(cron, 1..12, mapOf(Pair("JAN", 1), Pair("F
  * The day of week section.
  * @param cron The cron type.
  */
-class DayOfWeek(cron: CronType) : Section(cron, 0..6, mapOf(Pair("SUN", 0), Pair("MON", 1), Pair("TUE", 2), Pair("WED", 3),
-	Pair("THR", 4), Pair("FRI", 5), Pair("SAT", 6))) {
+class DayOfWeek(cron: CronType) : Section(
+	cron, 0..6, mapOf(
+		Pair("SUN", 0), Pair("MON", 1), Pair("TUE", 2), Pair("WED", 3),
+		Pair("THR", 4), Pair("FRI", 5), Pair("SAT", 6)
+	)
+) {
 	/**
 	 * Convience constructor to create the section using a CronAll.
 	 */

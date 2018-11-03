@@ -22,7 +22,13 @@ interface ScheduleHelper {
 	 */
 	fun now(): Schedule {
 		val now = LocalDateTime.now()
-		return Schedule(Second(now.second), Minute(now.minute), Hour(now.hour), DayOfMonth(now.dayOfMonth), Month(now.monthValue))
+		return Schedule(
+			Second(now.second),
+			Minute(now.minute),
+			Hour(now.hour),
+			DayOfMonth(now.dayOfMonth),
+			Month(now.monthValue)
+		)
 	}
 }
 
@@ -41,7 +47,8 @@ data class Schedule(
 	val hour: Hour = Hour(),
 	val dayOfMonth: DayOfMonth = DayOfMonth(),
 	val month: Month = Month(),
-	val dayOfWeek: DayOfWeek = DayOfWeek()) {
+	val dayOfWeek: DayOfWeek = DayOfWeek()
+) {
 
 	/**
 	 * Helper object for the schedule.

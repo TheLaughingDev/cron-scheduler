@@ -113,8 +113,16 @@ class ParserTest {
 
 		@Test
 		fun `with list`() {
-			val defaultSchedule = Schedule(Second(CronList(listOf<CronContinuousRange>(CronSingle(1), CronRange(1..10),
-				CronStep(CronAll(), 5), CronStep(CronSingle(2), 5), CronStep(1..10, 5)))))
+			val defaultSchedule = Schedule(
+				Second(
+					CronList(
+						listOf<CronContinuousRange>(
+							CronSingle(1), CronRange(1..10),
+							CronStep(CronAll(), 5), CronStep(CronSingle(2), 5), CronStep(1..10, 5)
+						)
+					)
+				)
+			)
 			assertThat(cronParser.parseSchedule("1,1-10,*/5,2/5,1-10/5 * * * * *")).isEqualTo(defaultSchedule)
 		}
 	}
@@ -154,9 +162,17 @@ class ParserTest {
 
 		@Test
 		fun `with list`() {
-			val defaultSchedule = Schedule(minute = Minute(CronList(listOf(CronSingle(1),
-				CronRange(1..10), CronStep(CronAll(), 5), CronStep(CronSingle(2), 5),
-				CronStep(1..10, 5)))))
+			val defaultSchedule = Schedule(
+				minute = Minute(
+					CronList(
+						listOf(
+							CronSingle(1),
+							CronRange(1..10), CronStep(CronAll(), 5), CronStep(CronSingle(2), 5),
+							CronStep(1..10, 5)
+						)
+					)
+				)
+			)
 			assertThat(cronParser.parseSchedule("* 1,1-10,*/5,2/5,1-10/5 * * * *")).isEqualTo(defaultSchedule)
 		}
 	}
@@ -196,9 +212,17 @@ class ParserTest {
 
 		@Test
 		fun `with list`() {
-			val defaultSchedule = Schedule(hour = Hour(CronList(listOf(CronSingle(1),
-				CronRange(1..10), CronStep(CronAll(), 5), CronStep(CronSingle(2), 5),
-				CronStep(1..10, 5)))))
+			val defaultSchedule = Schedule(
+				hour = Hour(
+					CronList(
+						listOf(
+							CronSingle(1),
+							CronRange(1..10), CronStep(CronAll(), 5), CronStep(CronSingle(2), 5),
+							CronStep(1..10, 5)
+						)
+					)
+				)
+			)
 			assertThat(cronParser.parseSchedule("* * 1,1-10,*/5,2/5,1-10/5 * * *")).isEqualTo(defaultSchedule)
 		}
 	}
@@ -238,9 +262,17 @@ class ParserTest {
 
 		@Test
 		fun `with list`() {
-			val defaultSchedule = Schedule(dayOfMonth = DayOfMonth(CronList(listOf(CronSingle(1),
-				CronRange(1..10), CronStep(CronAll(), 5), CronStep(CronSingle(2), 5),
-				CronStep(1..10, 5)))))
+			val defaultSchedule = Schedule(
+				dayOfMonth = DayOfMonth(
+					CronList(
+						listOf(
+							CronSingle(1),
+							CronRange(1..10), CronStep(CronAll(), 5), CronStep(CronSingle(2), 5),
+							CronStep(1..10, 5)
+						)
+					)
+				)
+			)
 			assertThat(cronParser.parseSchedule("* * * 1,1-10,*/5,2/5,1-10/5 * *")).isEqualTo(defaultSchedule)
 		}
 	}
@@ -280,9 +312,17 @@ class ParserTest {
 
 		@Test
 		fun `with list`() {
-			val defaultSchedule = Schedule(month = Month(CronList(listOf(CronSingle(1),
-				CronRange(1..10), CronStep(CronAll(), 5), CronStep(CronSingle(2), 5),
-				CronStep(1..10, 5)))))
+			val defaultSchedule = Schedule(
+				month = Month(
+					CronList(
+						listOf(
+							CronSingle(1),
+							CronRange(1..10), CronStep(CronAll(), 5), CronStep(CronSingle(2), 5),
+							CronStep(1..10, 5)
+						)
+					)
+				)
+			)
 			assertThat(cronParser.parseSchedule("* * * * 1,1-10,*/5,2/5,1-10/5 *")).isEqualTo(defaultSchedule)
 		}
 	}
@@ -316,9 +356,17 @@ class ParserTest {
 
 		@Test
 		fun `with list`() {
-			val defaultSchedule = Schedule(month = Month(CronList(listOf(CronSingle(1),
-				CronRange(1..10), CronStep(5), CronStep(2, 5),
-				CronStep(1..10, 5)))))
+			val defaultSchedule = Schedule(
+				month = Month(
+					CronList(
+						listOf(
+							CronSingle(1),
+							CronRange(1..10), CronStep(5), CronStep(2, 5),
+							CronStep(1..10, 5)
+						)
+					)
+				)
+			)
 			assertThat(cronParser.parseSchedule("* * * * JAN,JAN-OCT,*/5,FEB/5,JAN-OCT/5 *")).isEqualTo(defaultSchedule)
 		}
 	}
@@ -358,9 +406,17 @@ class ParserTest {
 
 		@Test
 		fun `with list`() {
-			val defaultSchedule = Schedule(dayOfWeek = DayOfWeek(CronList(listOf(CronSingle(1),
-				CronRange(1..6), CronStep(5), CronStep(2, 5),
-				CronStep(1..6, 5)))))
+			val defaultSchedule = Schedule(
+				dayOfWeek = DayOfWeek(
+					CronList(
+						listOf(
+							CronSingle(1),
+							CronRange(1..6), CronStep(5), CronStep(2, 5),
+							CronStep(1..6, 5)
+						)
+					)
+				)
+			)
 			assertThat(cronParser.parseSchedule("* * * * * 1,1-6,*/5,2/5,1-6/5")).isEqualTo(defaultSchedule)
 		}
 	}
@@ -394,9 +450,17 @@ class ParserTest {
 
 		@Test
 		fun `with list`() {
-			val defaultSchedule = Schedule(dayOfWeek = DayOfWeek(CronList(listOf(CronSingle(1),
-				CronRange(1..6), CronStep(5), CronStep(2, 5),
-				CronStep(1..6, 5)))))
+			val defaultSchedule = Schedule(
+				dayOfWeek = DayOfWeek(
+					CronList(
+						listOf(
+							CronSingle(1),
+							CronRange(1..6), CronStep(5), CronStep(2, 5),
+							CronStep(1..6, 5)
+						)
+					)
+				)
+			)
 			assertThat(cronParser.parseSchedule("* * * * * MON,MON-SAT,*/5,TUE/5,MON-SAT/5")).isEqualTo(defaultSchedule)
 		}
 	}

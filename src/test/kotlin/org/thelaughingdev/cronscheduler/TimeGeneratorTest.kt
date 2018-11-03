@@ -189,7 +189,11 @@ class TimeGeneratorTest {
 		@Test
 		fun `with 3 times`() {
 			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
-			val expected = listOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0), LocalDateTime.of(2000, 1, 1, 0, 1, 0), LocalDateTime.of(2000, 1, 1, 0, 2, 0))
+			val expected = listOf(
+				LocalDateTime.of(2000, 1, 1, 0, 0, 0),
+				LocalDateTime.of(2000, 1, 1, 0, 1, 0),
+				LocalDateTime.of(2000, 1, 1, 0, 2, 0)
+			)
 
 			assertThat(expected).isEqualTo(cronScheduler.nextTimes("0 * * * * *".toSchedule(), current).take(3).toList())
 		}
@@ -197,7 +201,11 @@ class TimeGeneratorTest {
 		@Test
 		fun `with 3 times different years`() {
 			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
-			val expected = listOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0), LocalDateTime.of(2001, 1, 1, 0, 0, 0), LocalDateTime.of(2002, 1, 1, 0, 0, 0))
+			val expected = listOf(
+				LocalDateTime.of(2000, 1, 1, 0, 0, 0),
+				LocalDateTime.of(2001, 1, 1, 0, 0, 0),
+				LocalDateTime.of(2002, 1, 1, 0, 0, 0)
+			)
 
 			assertThat(expected).isEqualTo(cronScheduler.nextTimes("0 0 0 1 JAN *".toSchedule(), current).take(3).toList())
 		}

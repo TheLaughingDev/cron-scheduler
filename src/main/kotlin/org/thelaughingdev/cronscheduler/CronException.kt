@@ -8,7 +8,8 @@ sealed class CronException(msg: String, cause: Throwable? = null) : RuntimeExcep
 /**
  * Exception thrown during data parsing.
  */
-class CronParseException(msg: String, position: Int, cause: Throwable? = null) : CronException(msg + ": column [$position]", cause)
+class CronParseException(msg: String, position: Int, cause: Throwable? = null) :
+	CronException(msg + ": column [$position]", cause)
 
 /**
  * Exception thrown during validation.
