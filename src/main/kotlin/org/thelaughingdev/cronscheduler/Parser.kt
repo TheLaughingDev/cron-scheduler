@@ -10,14 +10,18 @@ interface Parser {
 	/**
 	 * Parses the given cron string.
 	 * @return The schedule based off of the given string.
+	 * @throws CronParseException If the string cannot be parsed.
 	 */
 	fun parseSchedule(strSchedule: String): Schedule
 }
 
 /**
- * Converts a cron string to a schedule. The default
+ * Converts a cron string to a schedule by parsing. The String must be in a cron format.
+ * @param parser The parser to do the conversion. The default is BasicParser.singleton.
+ * @return The schedule object parsed from the string.
+ * @throws CronParseException If the string cannot be parsed.
  */
-fun String.toSchedule(parser: Parser = BasicParser()): Schedule = parser.parseSchedule(this)
+fun String.toSchedule(parser: Parser = BasicParser.singleton): Schedule = parser.parseSchedule(this)
 
 /**
  * Parser for parsing standard cron schedules.
@@ -26,8 +30,12 @@ fun String.toSchedule(parser: Parser = BasicParser()): Schedule = parser.parseSc
 class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper) : Parser {
 
 	companion object {
-		val globalParser: Parser by lazy {
 
+		/**
+		 * Returns a lazy singleton BasicParser.
+		 */
+		val singleton: Parser by lazy {
+			BasicParser()
 		}
 	}
 
