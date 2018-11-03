@@ -23,8 +23,8 @@ interface TimeGenerator {
 	 * @param start The start time.
 	 * @return Lazy sequence of cron times.
 	 */
-	fun nextTimes(schedule: Schedule, start: LocalDateTime = LocalDateTime.now()) = generateSequence(nextTime(schedule, start)) {
-		t -> nextTime(schedule, t.plusSeconds(1))
+	fun nextTimes(schedule: Schedule, start: LocalDateTime = LocalDateTime.now()) = generateSequence(nextTime(schedule, start)) { t ->
+		nextTime(schedule, t.plusSeconds(1))
 	}
 
 }
@@ -106,7 +106,8 @@ class BasicTimeGenerator : TimeGenerator {
 	 * @param possibleValues The set of all possible values.
 	 * @return The time or if one isn't found, TIME_NOT_FOUND.
 	 */
-	private fun findNextValidTime(time: Int, possibleValues: List<Int>) = possibleValues.find {it >= time} ?: TIME_NOT_FOUND
+	private fun findNextValidTime(time: Int, possibleValues: List<Int>) = possibleValues.find { it >= time }
+		?: TIME_NOT_FOUND
 
 	/**
 	 * Finds the next valid date given the time, day of month and day of week crons. This is separate from findNextValidTime
@@ -161,10 +162,9 @@ class BasicTimeGenerator : TimeGenerator {
 
 					if(newSectionValue > originalSectionValue)
 						nextTime = resetTime(nextTime, schedulesList.take(i))
-				}
-				else {
+				} else {
 					nextTime = resetTime(nextTime, schedulesList.take(i + 1))
-					nextTime = if(scheduleSection is Month)	nextTime.plusYears(1)	else nextTime.incrementSection(schedulesList[i + 1])
+					nextTime = if(scheduleSection is Month) nextTime.plusYears(1) else nextTime.incrementSection(schedulesList[i + 1])
 					found = false
 					break
 				}

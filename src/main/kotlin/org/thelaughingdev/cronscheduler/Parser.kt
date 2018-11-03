@@ -15,10 +15,21 @@ interface Parser {
 }
 
 /**
+ * Converts a cron string to a schedule. The default
+ */
+fun String.toSchedule(parser: Parser = BasicParser()): Schedule = parser.parseSchedule(this)
+
+/**
  * Parser for parsing standard cron schedules.
  * @param schedulerHelper Helper class used during parsing.
  */
 class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper) : Parser {
+
+	companion object {
+		val globalParser: Parser by lazy {
+
+		}
+	}
 
 	/**
 	 * Holds information about the string being parsed and the current parsing position.
@@ -32,7 +43,7 @@ class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper)
 		 */
 		enum class ParserSymbol(val str: String) {
 			HYPHEN("-"), COMMA(","), ASTERISK("*"), SLASH("/"), DIGIT("0123456789"), AT("@"), LOWER_CHAR("abcdefghijklmnopqrstuvwxyz"),
-			UPPER_CHAR("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),	WHITE_SPACE(" \t"), NONE("")
+			UPPER_CHAR("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), WHITE_SPACE(" \t"), NONE("")
 		}
 
 		/**
@@ -110,7 +121,8 @@ class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper)
 		DIGIT -> data.readDigits()
 		UPPER_CHAR -> {
 			val constantValue = data.readUpper()
-			section.textValues[constantValue] ?: throw CronParseException("Unknown constant $constantValue for section $section", data.position)
+			section.textValues[constantValue]
+				?: throw CronParseException("Unknown constant $constantValue for section $section", data.position)
 		}
 		else -> throw CronParseException("Unexpected symbol", data.position)
 	}
@@ -143,7 +155,7 @@ class BasicParser(private val schedulerHelper: ScheduleHelper = Schedule.Helper)
 	 */
 	private fun parseStep(data: ParserData, base: CronContinuousRange): CronStep = when(data.symbol) {
 		DIGIT -> CronStep(base, data.readDigits())
-		else ->  throw CronParseException("Step value must be integer. Unexpected symbol ${data.symbol}", data.position)
+		else -> throw CronParseException("Step value must be integer. Unexpected symbol ${data.symbol}", data.position)
 	}
 
 	/**

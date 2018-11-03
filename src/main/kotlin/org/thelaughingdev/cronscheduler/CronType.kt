@@ -72,20 +72,20 @@ data class CronStep(val base: CronContinuousRange, val step: Int) : CronContinuo
 	 * @param range The range for the step.
 	 * @param step The step value.
 	 */
-	constructor(range: IntRange, step: Int): this(CronRange(range.first..range.endInclusive), step)
+	constructor(range: IntRange, step: Int) : this(CronRange(range.first..range.endInclusive), step)
 
 	/**
 	 * Convienence constructor for making a step with a single value.
 	 * @param singleValue The single value for the step.
 	 * @param step The step value.
 	 */
-	constructor(singleValue: Int, step: Int): this(CronSingle(singleValue), step)
+	constructor(singleValue: Int, step: Int) : this(CronSingle(singleValue), step)
 
 	/**
 	 * Convienence constructor for making a step with an CronAll.
 	 * @param step The step value.
 	 */
-	constructor(step: Int): this(CronAll(), step)
+	constructor(step: Int) : this(CronAll(), step)
 
 	override fun possibleValues(range: IntRange) = when(base) {
 		is CronSingle -> (base.value..range.endInclusive).filterIndexed { i, _ -> i == 0 || i % step == 0 }.toList()
@@ -99,7 +99,7 @@ data class CronStep(val base: CronContinuousRange, val step: Int) : CronContinuo
  * The single cron value in the form of n.
  * @param value The value.
  */
-data class CronSingle(val value :Int) : CronContinuousRange() {
+data class CronSingle(val value: Int) : CronContinuousRange() {
 
 	override fun possibleValues(range: IntRange) = listOf(value)
 
@@ -142,13 +142,13 @@ data class CronList(val list: List<CronContinuousRange>) : CronType() {
 	 * Convience constructor that takes a varag.
 	 * @param l The list of continuous range crons.
 	 */
-	constructor(vararg l: CronContinuousRange): this(l.toList())
+	constructor(vararg l: CronContinuousRange) : this(l.toList())
 
 	/**
 	 * Convience constructor that takes a vararg of ints as creates the list a list of SingleCrons
 	 * @param l The list of ints.
 	 */
-	constructor(vararg l: Int): this(l.map { CronSingle(it) })
+	constructor(vararg l: Int) : this(l.map { CronSingle(it) })
 
 	override fun possibleValues(range: IntRange) = list.flatMap { it.possibleValues(range) }.distinct().sorted().toList()
 

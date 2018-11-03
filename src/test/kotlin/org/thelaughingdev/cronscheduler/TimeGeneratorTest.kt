@@ -1,14 +1,13 @@
 package org.thelaughingdev.cronscheduler
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
-import java.lang.IllegalArgumentException
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TimeGeneratorTest {
-
-	private val parser = BasicParser()
 
 	private val cronScheduler = BasicTimeGenerator()
 
@@ -22,18 +21,16 @@ class TimeGeneratorTest {
 			fun `in same minute`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 1, 0, 0, 30)
-				val schedule = parser.parseSchedule("30 * * * * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("30 * * * * *".toSchedule(), current))
 			}
 
 			@Test
 			fun `in next minute`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 30)
 				val expected = LocalDateTime.of(2000, 1, 1, 0, 1, 0)
-				val schedule = parser.parseSchedule("0 * * * * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("0 * * * * *".toSchedule(), current))
 			}
 		}
 
@@ -44,18 +41,16 @@ class TimeGeneratorTest {
 			fun `in same hour`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 1, 0, 30, 0)
-				val schedule = parser.parseSchedule("* 30 * * * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* 30 * * * *".toSchedule(), current))
 			}
 
 			@Test
 			fun `in next hour`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 30, 0)
 				val expected = LocalDateTime.of(2000, 1, 1, 1, 0, 0)
-				val schedule = parser.parseSchedule("* 0 * * * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* 0 * * * *".toSchedule(), current))
 			}
 		}
 
@@ -66,18 +61,16 @@ class TimeGeneratorTest {
 			fun `in same day`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 1, 6, 0, 0)
-				val schedule = parser.parseSchedule("* * 6 * * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * 6 * * *".toSchedule(), current))
 			}
 
 			@Test
 			fun `in next day`() {
 				val current = LocalDateTime.of(2000, 1, 1, 6, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 2, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * 0 * * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * 0 * * *".toSchedule(), current))
 			}
 		}
 
@@ -88,54 +81,48 @@ class TimeGeneratorTest {
 			fun `with day of month in same month`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 15, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * 15 * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * 15 * *".toSchedule(), current))
 			}
 
 			@Test
 			fun `with day of month in next month`() {
 				val current = LocalDateTime.of(2000, 1, 15, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 2, 1, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * 1 * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * 1 * *".toSchedule(), current))
 			}
 
 			@Test
 			fun `with day of week in same month`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 2, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * * * SUN")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * * * SUN".toSchedule(), current))
 			}
 
 			@Test
 			fun `with day of week in next month`() {
 				val current = LocalDateTime.of(2000, 1, 30, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 2, 1, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * * * TUE")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * * * TUE".toSchedule(), current))
 			}
 
 			@Test
 			fun `with day of month before day of week`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 2, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * 2 * THR")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * 2 * THR".toSchedule(), current))
 			}
 
 			@Test
 			fun `with day of week before day of month`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 5, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * 15 * WED")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * 15 * WED".toSchedule(), current))
 			}
 		}
 
@@ -146,18 +133,16 @@ class TimeGeneratorTest {
 			fun `in same year`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 6, 1, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * * JUN *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * * JUN *".toSchedule(), current))
 			}
 
 			@Test
 			fun `in next year`() {
 				val current = LocalDateTime.of(2000, 6, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2001, 1, 1, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * * JAN *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * * JAN *".toSchedule(), current))
 			}
 		}
 
@@ -168,36 +153,32 @@ class TimeGeneratorTest {
 			fun `using multiple singles`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 3, 2, 5, 30, 24)
-				val schedule = parser.parseSchedule("24 30 5 2 MAR *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("24 30 5 2 MAR *".toSchedule(), current))
 			}
 
 			@Test
 			fun `using a middle of the day of month range`() {
 				val current = LocalDateTime.of(2000, 1, 3, 0, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 3, 0, 0, 0)
-				val schedule = parser.parseSchedule("* * * 2-5 * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * * 2-5 * *".toSchedule(), current))
 			}
 
 			@Test
 			fun `using a list with hours`() {
 				val current = LocalDateTime.of(2000, 1, 1, 5, 0, 0)
 				val expected = LocalDateTime.of(2000, 1, 1, 5, 0, 0)
-				val schedule = parser.parseSchedule("* * 3,4,5 * * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* * 3,4,5 * * *".toSchedule(), current))
 			}
 
 			@Test
 			fun `using a step with minutes`() {
 				val current = LocalDateTime.of(2000, 1, 1, 0, 1, 0)
 				val expected = LocalDateTime.of(2000, 1, 1, 0, 5, 0)
-				val schedule = parser.parseSchedule("* */5 * * * *")
 
-				assertThat(expected).isEqualTo(cronScheduler.nextTime(schedule, current))
+				assertThat(expected).isEqualTo(cronScheduler.nextTime("* */5 * * * *".toSchedule(), current))
 			}
 		}
 	}
@@ -209,18 +190,16 @@ class TimeGeneratorTest {
 		fun `with 3 times`() {
 			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 			val expected = listOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0), LocalDateTime.of(2000, 1, 1, 0, 1, 0), LocalDateTime.of(2000, 1, 1, 0, 2, 0))
-			val schedule = parser.parseSchedule("0 * * * * *")
 
-			assertThat(expected).isEqualTo(cronScheduler.nextTimes(schedule, current).take(3).toList())
+			assertThat(expected).isEqualTo(cronScheduler.nextTimes("0 * * * * *".toSchedule(), current).take(3).toList())
 		}
 
 		@Test
 		fun `with 3 times different years`() {
 			val current = LocalDateTime.of(2000, 1, 1, 0, 0, 0)
 			val expected = listOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0), LocalDateTime.of(2001, 1, 1, 0, 0, 0), LocalDateTime.of(2002, 1, 1, 0, 0, 0))
-			val schedule = parser.parseSchedule("0 0 0 1 JAN *")
 
-			assertThat(expected).isEqualTo(cronScheduler.nextTimes(schedule, current).take(3).toList())
+			assertThat(expected).isEqualTo(cronScheduler.nextTimes("0 0 0 1 JAN *".toSchedule(), current).take(3).toList())
 		}
 	}
 

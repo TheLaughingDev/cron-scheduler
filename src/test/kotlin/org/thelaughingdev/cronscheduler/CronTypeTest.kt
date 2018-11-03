@@ -1,6 +1,6 @@
 package org.thelaughingdev.cronscheduler
 
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -73,7 +73,7 @@ class CronTypeTest {
 			val range = 0..30
 			val step = 5
 			val cron = CronStep(range, step)
-			assertThat(cron.possibleValues(range)).containsAll(listOf(0,5,10,15,20,25,30))
+			assertThat(cron.possibleValues(range)).containsAll(listOf(0, 5, 10, 15, 20, 25, 30))
 			assertThat(cron.possibleValues(range)).doesNotContain(-1, 6, 31)
 		}
 
@@ -91,10 +91,10 @@ class CronTypeTest {
 
 		@Test
 		fun `with possibleValues`() {
-			val arr = intArrayOf(3,100,50)
+			val arr = intArrayOf(3, 100, 50)
 			val cron = CronList(*arr)
 			assertThat(cron.possibleValues(0..500)).containsAll(arr.toList())
-			assertThat(cron.possibleValues(0..500)).doesNotContain(1,2,101)
+			assertThat(cron.possibleValues(0..500)).doesNotContain(1, 2, 101)
 		}
 
 		@Test

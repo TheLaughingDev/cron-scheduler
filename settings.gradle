@@ -1,2 +1,3 @@
 rootProject.name = 'cron-scheduler'
 
+kotlin.code.style = official
